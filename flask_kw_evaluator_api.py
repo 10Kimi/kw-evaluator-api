@@ -1,4 +1,3 @@
-
 from flask import Flask, request, jsonify, send_file
 import pandas as pd
 import re
@@ -53,12 +52,11 @@ def detailed_weak_media_score(row):
 @app.route('/evaluate', methods=['POST'])
 def evaluate_keywords():
     if 'file' not in request.files:
-        return jsonify({"error": "No file uploaded"}), 400
+        return "No file part in the request", 400
 
     file = request.files['file']
     df = pd.read_csv(file)
 
-    # 仮KD算出
     def estimate_kd(row):
         if not pd.isna(row.get("SEO難易度")):
             return row.get("SEO難易度")
@@ -71,7 +69,6 @@ def evaluate_keywords():
     df["媒体補正点"] = df.apply(detailed_weak_media_score, axis=1)
     df["ネガティブKW"] = df["キーワード"].apply(is_negative_kw)
 
-    # KDPスコア計算
     def calculate_kdp_score(row):
         score = 0
         try:
@@ -107,6 +104,6 @@ def evaluate_keywords():
     )
 
 if __name__ == '__main__':
-      import os
+    import os
     port = int(os.environ.get("PORT", 8000))
     app.run(host='0.0.0.0', port=port)
